@@ -1,79 +1,65 @@
 package ru.greendata.service;
 
 import org.springframework.stereotype.Service;
+import ru.greendata.dto.DepositDto;
 import ru.greendata.entity.Deposit;
-import ru.greendata.entity.Deposit;
+import ru.greendata.exception.EntityIllegalArgumentException;
+import ru.greendata.repository.BankRepository;
+import ru.greendata.repository.CustomerRepository;
 import ru.greendata.repository.DepositRepository;
-import ru.greendata.repository.DepositRepository;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
-public class DepositService {
-    private final DepositRepository depositRepository;
+public class DepositService extends BaseService<Deposit, DepositDto, DepositRepository>{
 
-    public DepositService(DepositRepository depositRepository){
-        this.depositRepository = depositRepository;
+    private final BankRepository bankRepository;
+    private final CustomerRepository customerRepository;
+
+    public DepositService(DepositRepository depositRepository, BankRepository bankRepository, CustomerRepository customerRepository){
+        super(depositRepository);
+        this.bankRepository = bankRepository;
+        this.customerRepository = customerRepository;
     }
 
-    public List<Deposit> findAll(){
-        return depositRepository.findAll();
+    public DepositDto create(DepositDto deposit){
+        check(deposit);
+        return  super.create(deposit);
     }
 
-    public Deposit findById(Object id){
-        Optional<Deposit> deposit;
-        /*if(id == null){
-            throw new EntityIllegalArgumentException("Идентификатор объекта не может быть null");
-        }*/
-        Integer parsedId;
-        /* try {*/
-        parsedId = Integer.valueOf(id.toString());
-       /* }catch (NumberFormatException ex){
-            throw new EntityIllegalArgumentException(String.format("Не удалось преобразовать идентификатор к нужному типу, текст ошибки: %s", ex));
-        }*/
-        deposit = depositRepository.findById(parsedId);
-
-        /*if(product == null){
-            throw new EntityNotFoundException(Product.TYPE_NAME, parsedId);
-        }*/
-        return deposit.get();
+    public DepositDto update(DepositDto deposit) {
+        check(deposit);
+        return super.update(deposit);
     }
 
-    public Deposit create(Deposit deposit){
-        /*if (product == null) {
-            throw new EntityIllegalArgumentException("Создаваемый объект не может быть null");
-        }*/
-        /*if(product.getId() == null){
-            throw new EntityIllegalArgumentException("Идентификатор объекта не может быть null");
-        }*/
-        /*Deposit existedDeposit = productRepository.findOne(product.getId());
-        if(existedProduct != null){
-            throw new EntityAlreadeExistsException(Product.TYPE_NAME, existedProduct.getId());
-        }*/
-        return depositRepository.save(deposit);
-    }
-
-    public Deposit update(Deposit deposit) {
-        /*if (product == null) {
-            throw new EntityIllegalArgumentException("Создаваемый объект не может быть null");
-        }*/
-        /*if(product.getId() == null){
-            throw new EntityIllegalArgumentException("Идентификатор объекта не может быть null");
-        }*/
-        /*Product existedProduct = productRepository.findOne(product.getId());
-        if(existedProduct == null){
-            throw new EntityNotFoundException(Product.TYPE_NAME, product.getId());
-        }*/
-        return depositRepository.save(deposit);
-    }
-
-
+    @Override
     public void delete(Object id){
         Deposit deposit = findById(id);
-       /* if(deposit.size() > 0){
-            //throw new EntityHasDetailsException(SalesPeriod.TYPE_NAME, product.getId());
-        }*/
-        depositRepository.delete(deposit);
+        repository.delete(deposit);
+    }
+
+    private void check(DepositDto deposit) {
+        if(deposit == null){
+            throw new EntityIllegalArgumentException("Создаваемый объект не может быть null");
+        }
+        if(deposit.getBank() == null){
+            throw new EntityIllegalArgumentException("Банк не может быть null");
+        }
+        if(deposit.getBank().getId() == null){
+            throw new EntityIllegalArgumentException("Идентификатор банка не может быть null");
+        }
+        if(!bankRepository.findById(deposit.getBank().getId()).isPresent()){
+            throw new EntityIllegalArgumentException("Банка с таким идентификатором не существует");
+        }
+        if(deposit.getCustomer() == null){
+            throw new EntityIllegalArgumentException("Клиент не может быть null");
+        }
+        if(deposit.getCustomer().getId() == null){
+            throw new EntityIllegalArgumentException("Идентификатор клиента не может быть null");
+        }
+        if(!customerRepository.findById(deposit.getCustomer().getId()).isPresent()){
+            throw new EntityIllegalArgumentException("Клиента с таким идентификатором не существует");
+        }
+        if(deposit.getOpenDate() == null){
+            throw new EntityIllegalArgumentException("Дата открытия не может быть null");
+        }
     }
 }

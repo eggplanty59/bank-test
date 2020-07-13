@@ -1,10 +1,18 @@
 package ru.greendata.entity;
 
+import ru.greendata.dto.BankDto;
+
 import javax.persistence.*;
+
 
 @Entity
 @Table(name ="bank")
-public class Bank {
+public class Bank extends BaseEntity<BankDto> {
+    public static String TYPE_NAME = "Банк";
+
+    public static void setTypeName(String typeName) {
+        TYPE_NAME = typeName;
+    }
 
     @Id
     @Column(name= "id", nullable = false)
@@ -48,5 +56,9 @@ public class Bank {
 
     public void setBic(String bankIdCode) {
         this.bic = bankIdCode;
+    }
+
+    public BankDto toDto(){
+        return new BankDto(id, name, bic);
     }
 }

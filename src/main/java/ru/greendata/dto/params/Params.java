@@ -1,23 +1,23 @@
 package ru.greendata.dto.params;
 
-import ru.greendata.dto.filters.FilterCriteria;
+import ru.greendata.entity.filters.FilterCriteria;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class BankParams implements Serializable {
+public class Params implements Serializable {
     List<FilterCriteria> filterCriteria;
 
     private String orderBy;
     private String orderDir;
 
-    public BankParams(List<FilterCriteria> filterCriteria, String orderBy, String orderDir) {
+    public Params(List<FilterCriteria> filterCriteria, String orderBy, String orderDir) {
         this.filterCriteria = filterCriteria;
         this.orderBy = orderBy;
         this.orderDir = orderDir;
     }
 
-    public BankParams() {
+    public Params() {
     }
 
     public List<FilterCriteria> getFilterCriteria() {

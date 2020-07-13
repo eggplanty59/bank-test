@@ -1,11 +1,14 @@
 package ru.greendata.entity;
 
+import ru.greendata.dto.CustomerDto;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "customer")
 
-public class Customer {
+public class Customer extends BaseEntity<CustomerDto> {
+    public static String TYPE_NAME = "Клиент";
 
     @Id
     @Column(name= "id", nullable = false)
@@ -73,5 +76,9 @@ public class Customer {
 
     public void setFormOfIncorporation(String formOfIncorporation) {
         this.formOfIncorporation = formOfIncorporation;
+    }
+
+    public CustomerDto toDto(){
+        return new CustomerDto(id, name, shortName, address, formOfIncorporation);
     }
 }

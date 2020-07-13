@@ -1,19 +1,17 @@
-package ru.greendata.dto.filters;
+package ru.greendata.entity.filters;
 
 import org.springframework.data.jpa.domain.Specification;
-import ru.greendata.dto.params.BankParams;
-import ru.greendata.entity.Bank;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-public class BankSpecification implements Specification<Bank> {
+public class BaseSpecification implements Specification {
 
     private FilterCriteria criteria;
 
-    public BankSpecification(FilterCriteria criteria) {
+    public BaseSpecification(FilterCriteria criteria) {
         super();
         this.criteria = criteria;
     }

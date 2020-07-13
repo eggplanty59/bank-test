@@ -1,4 +1,4 @@
-package ru.greendata.dto.filters;
+package ru.greendata.entity.filters;
 
 import java.io.Serializable;
 

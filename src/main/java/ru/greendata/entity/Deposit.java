@@ -1,11 +1,15 @@
 package ru.greendata.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import ru.greendata.dto.DepositDto;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "deposit")
-public class Deposit {
+public class Deposit extends BaseEntity<DepositDto> {
+    public static String TYPE_NAME = "Вклад";
 
     @Id
     @Column(name = "id", nullable = false)
@@ -13,14 +17,15 @@ public class Deposit {
     private Integer id;
 
     @OneToOne
-    @JoinColumn(name = "customer", referencedColumnName ="id", nullable = false)
+    @JoinColumn(name = "customer_id", referencedColumnName ="id", nullable = false)
     private Customer customer;
 
     @OneToOne
-    @JoinColumn(name = "bank", referencedColumnName ="id", nullable = false)
+    @JoinColumn(name = "bank_id", referencedColumnName ="id", nullable = false)
     private Bank bank;
 
     @Column(name = "open_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private Date openDate;
 
     @Column(name = "percent")
@@ -87,5 +92,9 @@ public class Deposit {
 
     public void setTerm(int term) {
         this.term = term;
+    }
+
+    public DepositDto toDto(){
+        return new DepositDto(id, customer.toDto(), bank.toDto(), openDate, percent, term);
     }
 }
