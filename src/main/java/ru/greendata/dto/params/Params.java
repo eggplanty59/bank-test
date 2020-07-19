@@ -1,46 +1,35 @@
 package ru.greendata.dto.params;
 
-import ru.greendata.entity.filters.FilterCriteria;
-
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-public class Params implements Serializable {
-    List<FilterCriteria> filterCriteria;
+public class Params {
+    FilterParams filterCriteria;
 
-    private String orderBy;
-    private String orderDir;
+    List<OrderParams> orders;
 
-    public Params(List<FilterCriteria> filterCriteria, String orderBy, String orderDir) {
+    public Params(FilterParams filterCriteria, List<OrderParams> orders) {
         this.filterCriteria = filterCriteria;
-        this.orderBy = orderBy;
-        this.orderDir = orderDir;
+        this.orders = orders;
     }
 
     public Params() {
+
     }
 
-    public List<FilterCriteria> getFilterCriteria() {
+    public FilterParams getFilterCriteria() {
         return filterCriteria;
     }
 
-    public void setFilterCriteria(List<FilterCriteria> filterCriteria) {
+    public void setFilterCriteria(FilterParams filterCriteria) {
         this.filterCriteria = filterCriteria;
     }
 
-    public String getOrderBy() {
-        return orderBy;
+    public List<OrderParams> getOrders() {
+        return orders;
     }
 
-    public void setOrderBy(String orderBy) {
-        this.orderBy = orderBy;
-    }
-
-    public String getOrderDir() {
-        return orderDir;
-    }
-
-    public void setOrderDir(String orderDir) {
-        this.orderDir = orderDir;
+    public void setOrders(List<OrderParams> orders) {
+        this.orders = orders;
     }
 }

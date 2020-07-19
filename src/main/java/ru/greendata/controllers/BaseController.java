@@ -8,13 +8,15 @@ import ru.greendata.dto.BaseDto;
 import ru.greendata.dto.params.Params;
 import ru.greendata.entity.BaseEntity;
 import ru.greendata.service.BaseService;
+import ru.greendata.service.IService;
 
 import java.util.List;
 
 public class BaseController<Dto extends BaseDto<Entity>, Entity extends BaseEntity<Dto>, Repo extends JpaRepository<Entity,Integer> & JpaSpecificationExecutor<Entity>> {
-    private final BaseService<Entity, Dto , Repo> service;
 
-    public BaseController(BaseService service) {
+    private final IService<Entity, Dto , Repo> service;
+
+    public BaseController(IService service) {
         this.service = service;
     }
 

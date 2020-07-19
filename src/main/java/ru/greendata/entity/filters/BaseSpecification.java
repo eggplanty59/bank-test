@@ -1,6 +1,7 @@
 package ru.greendata.entity.filters;
 
 import org.springframework.data.jpa.domain.Specification;
+import ru.greendata.dto.params.FilterCriteria;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -26,6 +27,14 @@ public class BaseSpecification implements Specification {
         else if (criteria.getOperation().equalsIgnoreCase("<")) {
             return builder.lessThan(
                     root.<String> get(criteria.getKey()), criteria.getValue().toString());
+        }
+        else if (criteria.getOperation().equalsIgnoreCase("!=")) {
+            if (root.get(criteria.getKey()).getJavaType() == String.class) {
+                return builder.notLike(
+                        root.<String>get(criteria.getKey()), "%" + criteria.getValue() + "%");
+            } else {
+                return builder.notEqual(root.get(criteria.getKey()), criteria.getValue());
+            }
         }
         else if (criteria.getOperation().equalsIgnoreCase("=")) {
             if (root.get(criteria.getKey()).getJavaType() == String.class) {

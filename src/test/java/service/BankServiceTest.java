@@ -9,6 +9,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.greendata.dto.BankDto;
+import ru.greendata.dto.params.FilterCriteria;
+import ru.greendata.dto.params.FilterParams;
+import ru.greendata.dto.params.OrderParams;
 import ru.greendata.dto.params.Params;
 import ru.greendata.entity.Bank;
 import ru.greendata.exception.EntityHasDetailsException;
@@ -16,6 +19,7 @@ import ru.greendata.exception.EntityIllegalArgumentException;
 import ru.greendata.exception.EntityNotFoundException;
 import ru.greendata.service.BankService;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -73,13 +77,114 @@ public class BankServiceTest {
 
     @Test(expected = EntityNotFoundException.class)
     public void deleteBank(){
-        bankService.delete(4);
-        Bank bank= bankService.findById(4);
+        bankService.delete(5);
+        Bank bank= bankService.findById(5);
     }
 
     @Test
     public void listBankTest(){
         List<BankDto> list = bankService.list(new Params());
-        Assert.assertTrue(bankService.list(new Params()).size() >= 3);
+        Assert.assertTrue(list.size() >= 3);
+    }
+
+    @Test
+    public void listOrderByDescBankTest(){
+        List<OrderParams> orders = Arrays.asList(new OrderParams("id","desc"));
+        Params params = new Params(null, orders);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.get(0).getId() == 4);
+    }
+
+    @Test
+    public void listOrderByAscBankTest(){
+        List<OrderParams> orders = Arrays.asList(new OrderParams("id","asc"));
+        Params params = new Params(null, orders);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.get(0).getId() == 1);
+    }
+
+    @Test
+    public void listMultiOrderByBankTest(){
+        List<OrderParams> orders = Arrays.asList(new OrderParams("name","desc"),new OrderParams("bic","asc"));
+        Params params = new Params(null, orders);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.get(0).getId() == 3);
+    }
+
+    @Test
+    public void listFilterBankEqualsTest(){
+        FilterParams filterCriteria = new FilterParams("and", null
+                ,Arrays.asList(new FilterCriteria("id","=","1")));
+        Params params = new Params(filterCriteria, null);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.get(0).getId() == 1);
+    }
+
+    @Test
+    public void listFilterBankGreaterTest(){
+        FilterParams filterCriteria = new FilterParams("and", null
+                ,Arrays.asList(new FilterCriteria("id",">","3")));
+        Params params = new Params(filterCriteria, null);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.get(0).getId() == 4);
+    }
+
+    @Test
+    public void listFilterBankLessTest(){
+        FilterParams filterCriteria = new FilterParams("and", null
+                ,Arrays.asList(new FilterCriteria("id","<","2")));
+        Params params = new Params(filterCriteria, null);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.get(0).getId() == 1);
+    }
+
+    @Test
+    public void listFilterBankNotEqualsTest(){
+        FilterParams filterCriteria = new FilterParams("and", null
+                ,Arrays.asList(new FilterCriteria("id","!=","1")));
+        Params params = new Params(filterCriteria, null);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.size() == 3);
+    }
+
+    @Test
+    public void listFilterAndBankTest(){
+        FilterParams filterCriteria = new FilterParams("and", null
+                ,Arrays.asList(new FilterCriteria("name","=","VTB"),new FilterCriteria("bic","=","147852369")));
+        Params params = new Params(filterCriteria, null);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.get(0).getId() == 3);
+    }
+
+    @Test
+    public void listFilterOrBankTest(){
+        FilterParams filterCriteria = new FilterParams("or", null
+                ,Arrays.asList(new FilterCriteria("name","=","Sber"),new FilterCriteria("name","=","Alfa")));
+        Params params = new Params(filterCriteria, null);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.size() == 2);
+    }
+
+    @Test
+    public void listFilterAndOrBankTest(){
+        List<FilterParams> filterParamsOr = Arrays.asList(new FilterParams("or", null, Arrays.asList(
+                new FilterCriteria("bic", "=", "987654321"), new FilterCriteria("bic", "=", "247852369"))));
+        FilterParams filterCriteria = new FilterParams("and", filterParamsOr
+                ,Arrays.asList(new FilterCriteria("name","=","Alfa")));
+        Params params = new Params(filterCriteria, null);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.get(0).getId() == 4);
+    }
+
+    @Test
+    public void listFilterAndOrOrderByBankTest(){
+        List<FilterParams> filterParamsOr = Arrays.asList(new FilterParams("or", null, Arrays.asList(
+                new FilterCriteria("bic", "=", "193456789"), new FilterCriteria("bic", "=", "147852369"))));
+        FilterParams filterCriteria = new FilterParams("and", filterParamsOr
+                ,Arrays.asList(new FilterCriteria("name","=","VTB")));
+        List<OrderParams> orders = Arrays.asList(new OrderParams("id","asc"));
+        Params params = new Params(filterCriteria, orders);
+        List<BankDto> list = bankService.list(params);
+        Assert.assertTrue(list.get(0).getId() == 1);
     }
 }

@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DepositDto extends BaseDto<Deposit> implements Serializable {
+public class DepositDto extends BaseDto<Deposit> {
 
     private Integer id;
     private CustomerDto customer;

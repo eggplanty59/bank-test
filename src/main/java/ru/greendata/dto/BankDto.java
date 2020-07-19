@@ -4,7 +4,7 @@ import ru.greendata.entity.Bank;
 
 import java.io.Serializable;
 
-public class BankDto extends BaseDto<Bank> implements Serializable {
+public class BankDto extends BaseDto<Bank> {
 
     private Integer id;
     private String name;

@@ -5,7 +5,7 @@ import ru.greendata.entity.Customer;
 
 import java.io.Serializable;
 
-public class CustomerDto extends BaseDto<Customer>  implements Serializable {
+public class CustomerDto extends BaseDto<Customer> {
 
     private Integer id;
     private String name;

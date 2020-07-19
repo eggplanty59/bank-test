@@ -1,5 +1,6 @@
 package ru.greendata.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.greendata.dto.DepositDto;
 import ru.greendata.entity.Deposit;
@@ -9,15 +10,22 @@ import ru.greendata.repository.CustomerRepository;
 import ru.greendata.repository.DepositRepository;
 
 @Service
-public class DepositService extends BaseService<Deposit, DepositDto, DepositRepository>{
+public class DepositService extends BaseService<Deposit, DepositDto, DepositRepository> implements IService<Deposit, DepositDto, DepositRepository>{
 
     private final BankRepository bankRepository;
     private final CustomerRepository customerRepository;
 
+    @Autowired
     public DepositService(DepositRepository depositRepository, BankRepository bankRepository, CustomerRepository customerRepository){
         super(depositRepository);
         this.bankRepository = bankRepository;
         this.customerRepository = customerRepository;
+    }
+
+
+    public DepositService(){
+        bankRepository = null;
+        customerRepository = null;
     }
 
     public DepositDto create(DepositDto deposit){

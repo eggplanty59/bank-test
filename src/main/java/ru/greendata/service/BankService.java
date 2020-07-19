@@ -1,5 +1,6 @@
 package ru.greendata.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.greendata.dto.BankDto;
 import ru.greendata.entity.Bank;
@@ -12,15 +13,20 @@ import ru.greendata.repository.DepositRepository;
 import java.util.List;
 
 @Service
-public class BankService extends BaseService<Bank, BankDto, BankRepository> {
+public class BankService extends BaseService<Bank, BankDto, BankRepository>  implements IService<Bank, BankDto, BankRepository>{
 
     private final DepositRepository depositRepository;
 
     private static final int BIC_LENGTH = 9;
 
+    @Autowired
     public BankService(BankRepository bankRepository, DepositRepository depositRepository){
         super(bankRepository);
         this.depositRepository = depositRepository;
+    }
+
+    public BankService() {
+        this.depositRepository = null;
     }
 
     @Override
@@ -37,6 +43,7 @@ public class BankService extends BaseService<Bank, BankDto, BankRepository> {
         return super.create(bank);
     }
 
+    @Override
     public BankDto update(BankDto bank) {
         if(bank.getBic() == null){
             throw new EntityIllegalArgumentException("БИК не может быть null");

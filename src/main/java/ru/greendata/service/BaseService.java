@@ -5,10 +5,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import ru.greendata.dto.BaseDto;
-import ru.greendata.dto.params.Params;
+import ru.greendata.dto.params.*;
 import ru.greendata.entity.BaseEntity;
 import ru.greendata.entity.filters.BaseSpecification;
-import ru.greendata.entity.filters.FilterCriteria;
 import ru.greendata.exception.EntityIllegalArgumentException;
 import ru.greendata.exception.EntityNotFoundException;
 
@@ -20,6 +19,10 @@ public class BaseService<Entity extends BaseEntity<Dto>, Dto extends BaseDto<Ent
 
     public BaseService(Repository repository) {
         this.repository = repository;
+    }
+
+    public BaseService() {
+        this.repository = null;
     }
 
     public Dto create(Dto dto){
@@ -39,8 +42,18 @@ public class BaseService<Entity extends BaseEntity<Dto>, Dto extends BaseDto<Ent
     }
 
     public List<Dto> list(Params params) {
+        if(params == null)
+            params = new Params();
+        List<Entity> list;
+        if(params.getFilterCriteria() != null && params.getOrders() != null)
+            list = repository.findAll(getEntitySelect(params.getFilterCriteria(), null), getOrders(params));
+        else if(params.getFilterCriteria() == null && params.getOrders() != null)
+            list = repository.findAll(getOrders(params));
+        else if(params.getFilterCriteria() != null && params.getOrders() == null)
+            list = repository.findAll(getEntitySelect(params.getFilterCriteria(),null));
+        else
+            list =repository.findAll();
 
-        List<Entity> list = repository.findAll(getEntitySelect(params), getOrderBy(params));
         List<Dto> listDto = new ArrayList<>();
         list.stream().forEach((entity -> listDto.add(entity.toDto())));
         return listDto;
@@ -62,42 +75,46 @@ public class BaseService<Entity extends BaseEntity<Dto>, Dto extends BaseDto<Ent
         return entity;
     }
 
-    private Specification<Entity> getEntitySelect(Params params){
-        Specification spec = null;
-        List<FilterCriteria> listFilterCriteria = params.getFilterCriteria();
-        if (listFilterCriteria == null){
-            return null;
+    private Specification<Entity> getEntitySelect(FilterParams filterParams, Specification<Entity> spec){
+        if (filterParams.getFilterParamsList() != null)
+        for (FilterParams insertedFilterParams: filterParams.getFilterParamsList()) {
+
+
+            Specification<Entity> specification = getEntitySelect( insertedFilterParams, spec);
+            if (filterParams.getOperation().equalsIgnoreCase("or"))
+                spec = spec == null ? Specification.where(specification) : spec.or(specification);
+            else
+                spec = spec == null ? Specification.where(specification) : spec.and(specification);
         }
-        for (FilterCriteria filterCriteria: listFilterCriteria){
+        if (filterParams.getFilterCriteriaList() != null)
+        for (FilterCriteria filterCriteria: filterParams.getFilterCriteriaList()) {
             BaseSpecification baseSpecification = new BaseSpecification(filterCriteria);
-            spec = spec == null ? Specification.where(baseSpecification) : spec.and(baseSpecification);
+            //если ничего нет или любая надпись, то считаем что будем делать "и"
+            if (filterParams.getOperation().equalsIgnoreCase("or"))
+                spec = spec == null ? Specification.where(baseSpecification) : spec.or(baseSpecification);
+            else
+                spec = spec == null ? Specification.where(baseSpecification) : spec.and(baseSpecification);
         }
         return spec;
     }
 
-    private Sort getOrderBy(Params params){
-        boolean asc = params.getOrderDir() != null && params.getOrderDir().equalsIgnoreCase("asc");
-        Sort.Direction sortDir = asc ? Sort.Direction.ASC: Sort.Direction.DESC;
-
-        if (params.getOrderBy() == null){
-            return Sort.by(sortDir, "id");
-        }
-
+    private Sort getOrders(Params params){
         Sort sort = null;
-        String[] orderArray = params.getOrderBy().split(",");
+        if(params.getOrders() == null)
+            return null;
+        for(OrderParams orderParams: params.getOrders()) {
+            boolean asc = orderParams.getOrderDir() != null && orderParams.getOrderDir().equalsIgnoreCase("asc");
+            Sort.Direction sortDir = asc ? Sort.Direction.ASC : Sort.Direction.DESC;
 
-        for (String order: orderArray){
-            if (order.equalsIgnoreCase("id")){
-                sort = sort == null ? (Sort.by(sortDir, "id")) : sort.and(Sort.by(sortDir, "id"));
+            if (orderParams.getOrderBy() == null) {
+                return Sort.by(sortDir, "id");
             }
-            if (order.equalsIgnoreCase("name")){
-                sort = sort == null ? (Sort.by(sortDir, "name")) : sort.and(Sort.by(sortDir, "name"));
-            }
-            if (order.equalsIgnoreCase("bic")) {
-                sort = sort == null ? (Sort.by(sortDir, "bic")) : sort.and(Sort.by(sortDir, "bic"));
-            }
+
+            sort = sort == null ? (Sort.by(sortDir, orderParams.getOrderBy())) : sort.and(Sort.by(sortDir, orderParams.getOrderBy()));
+
         }
         return sort;
+
     }
 
     public void delete(Object id) {
