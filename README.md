@@ -30,9 +30,11 @@
 Описание api:
 
 Запрос объектов:
+
   POST api/v1/bank/list
   POST api/v1/customer/list
-	POST api/v1/deposit/list
+  POST api/v1/deposit/list
+	
     Тело запроса:
 		{
        "filterCriteria" : //хренение данных о фильтрации
@@ -183,5 +185,5 @@
 	Удаление объектов:
   	DELETE api/v1/bank/{id} 
   	DELETE api/v1/customer/{id} 
-		DELETE api/v1/deposit/{id} 
+	DELETE api/v1/deposit/{id} 
 			
